@@ -1,0 +1,77 @@
+# Render Blueprint — one-click deploy for STMZ Kinetic.
+# When you connect this repo via "New + Blueprint" in Render dashboard,
+# Render reads this file and provisions everything automatically.
+#
+# Secret env vars (API keys, etc.) are marked `sync: false` — Render will
+# prompt you for them on the blueprint setup page, then store them encrypted.
+# Never commit real secrets to this file.
+
+services:
+  - type: web
+    name: stmz-kinetic
+    env: node
+    region: singapore        # closest to Pakistan; change to oregon/frankfurt if needed
+    plan: free               # Render free tier — upgrade later from dashboard
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true         # auto-deploy on every push to main
+
+    envVars:
+      # ─── Non-secret defaults ───
+      - key: NODE_VERSION
+        value: "20"
+      - key: APP_URL
+        value: https://stmzkinetic.com
+      - key: PROXY_LIMIT_PER_MIN
+        value: "60"
+      - key: DEMO_LIMIT
+        value: "5"
+
+      # ─── Secrets (Render will prompt for these during blueprint setup) ───
+      # AI providers — at minimum, set GROQ_API_KEY (free at console.groq.com)
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+
+      # Media providers
+      - key: PEXELS_API_KEY      # photos + video clips; required for relevant images
+        sync: false
+      - key: ELEVENLABS_API_KEY  # premium voice fallback; optional but recommended
+        sync: false
+
+      # Firebase Admin — paste the MINIFIED one-line JSON service account
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+
+      # Founder mode — comma-separated Gmail addresses with unlimited free access
+      - key: ADMIN_EMAILS
+        sync: false
+
+      # Cron secret — required by /api/scheduler/tick and /api/autopilot/tick
+      - key: SCHEDULER_SECRET
+        generateValue: true     # Render auto-generates a strong random value
+
+      # LinkedIn OAuth (optional — only needed if you offer LinkedIn direct posting)
+      - key: LINKEDIN_CLIENT_ID
+        sync: false
+      - key: LINKEDIN_CLIENT_SECRET
+        sync: false
+      - key: LINKEDIN_STATE_SECRET
+        generateValue: true
+
+      # Paddle (set AFTER your Paddle approval; safe to leave blank pre-launch)
+      - key: PADDLE_WEBHOOK_SECRET
+        sync: false
+      - key: PADDLE_PRICE_STARTER
+        sync: false
+      - key: PADDLE_PRICE_PRO
+        sync: false
+      - key: PADDLE_PRICE_AGENCY
+        sync: false

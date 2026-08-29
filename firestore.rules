@@ -1,0 +1,36 @@
+// =============================================================================
+// STMZ KINETIC — Firestore security rules
+// -----------------------------------------------------------------------------
+// PASTE THIS INTO: Firebase console → Firestore Database → Rules tab → Publish.
+//
+// What it does:
+//   - Each signed-in user can read/write ONLY their own document at users/{uid}
+//     and their own subcollection users/{uid}/posts/{postId}.
+//   - Nobody can read or write another user's data.
+//   - Unauthenticated requests are blocked.
+//   - Your server (Firebase Admin SDK) bypasses these rules — webhooks still work.
+// =============================================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The user's own profile doc (brands, activeBrand, subscription state).
+    match /users/{uid} {
+      allow read, update: if request.auth != null && request.auth.uid == uid;
+      allow create:       if request.auth != null && request.auth.uid == uid;
+      // Block delete from the client — only the server should delete accounts.
+      allow delete:       if false;
+
+      // Each user's posts (drafts, scheduled, posted) live here.
+      match /posts/{postId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // Future-proofed slot for ideas / templates per user.
+      match /{collection}/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+  }
+}
