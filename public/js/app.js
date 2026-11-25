@@ -3170,7 +3170,7 @@ function closeBrand() { $('brandModal').classList.remove('show'); }
    client. The server enforces the same bypass via its env var.
    ============================================================ */
 const ADMIN_EMAILS = [
-  'salmanyousafpk571@gmail.com',
+  'salmanyousafpk571@gmail.com', 'syedimranyousafpk836@gmail.com',
 ];
 function isFounder() {
   const e = (user?.email || '').toLowerCase();
